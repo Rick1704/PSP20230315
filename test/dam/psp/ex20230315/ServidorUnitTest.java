@@ -8,10 +8,13 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.util.Base64;
 
@@ -202,6 +205,7 @@ class ServidorUnitTest {
 			out.writeUTF("cert");
 			out.writeUTF("psp");
 			out.writeUTF(b64);
+			System.out.println(b64);
 			socket.shutdownOutput();
 			
 			assertEquals("OK:" + b64HashB64, new DataInputStream(socket.getInputStream()).readUTF());
@@ -293,7 +297,16 @@ class ServidorUnitTest {
 	
 	@Test
 	@DisplayName("(3 puntos) Petición \"cifrar\"")
-	void test17() {
+	void test17() throws NoSuchAlgorithmException, CertificateEncodingException, KeyStoreException {
+		try (Socket socket = new Socket("localhost", 9000)){
+			DataOutputStream out  = new DataOutputStream(socket.getOutputStream());
+			socket.setSoTimeout(10000);
+			Certificate cer = ks.getCertificate("keystore");
+			out.write(cer.getEncoded());
+		} catch (IOException e) {
+			fail(e.getLocalizedMessage());
+		}
+		
 		fail("Not yet implemented");
 	}
 	
